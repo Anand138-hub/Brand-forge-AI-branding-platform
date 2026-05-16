@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#f0f7ee"/>
+      <stop offset="100%" stop-color="#dcefd8"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <circle cx="512" cy="440" r="300" fill="none" stroke="#3aa918" stroke-width="2" opacity="0.3"/>
+  <circle cx="512" cy="440" r="260" fill="#3aa918" opacity="0.08"/>
+  <ellipse cx="512" cy="340" rx="60" ry="80" fill="#3aa918" opacity="0.6"/>
+  <ellipse cx="452" cy="380" rx="50" ry="65" fill="#3aa918" opacity="0.5" transform="rotate(-20,452,380)"/>
+  <ellipse cx="572" cy="375" rx="50" ry="65" fill="#3aa918" opacity="0.5" transform="rotate(20,572,375)"/>
+  <line x1="512" y1="420" x2="512" y2="500" stroke="#1a5209" stroke-width="3"/>
+  <text x="512" y="580" font-family="Georgia, serif" font-size="88" font-weight="bold"
+        fill="#1a5209" text-anchor="middle" dominant-baseline="middle"
+        letter-spacing="4">TAAZA</text>
+  <line x1="262" y1="625" x2="762" y2="625" stroke="#3aa918" stroke-width="1.5" opacity="0.5"/>
+  <text x="512" y="660" font-family="Georgia, serif" font-size="20" fill="#3aa918"
+        text-anchor="middle" letter-spacing="8" opacity="0.8">ORGANIC · NATURAL</text>
+</svg>

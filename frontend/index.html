@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrandForge AI — Generative Branding Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f; --paper: #f5f0e8; --gold: #c9a84c; --gold-light: #e8d08a;
+    --rust: #c45c3a; --teal: #2a7d6f; --cream: #faf6ee; --muted: #8a8070;
+    --border: #d4c9b0; --white: #ffffff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--paper); color:var(--ink); font-family:'DM Mono',monospace; overflow-x:hidden; min-height:100vh; }
+  header { border-bottom:1px solid var(--border); padding:1.2rem 3rem; display:flex; align-items:center; justify-content:space-between; background:var(--cream); position:sticky; top:0; z-index:200; }
+  .logo { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:900; letter-spacing:-0.02em; display:flex; align-items:center; gap:0.6rem; cursor:pointer; }
+  .logo-badge { background:var(--gold); color:var(--ink); font-family:'DM Mono',monospace; font-size:0.55rem; font-weight:500; padding:0.15rem 0.4rem; letter-spacing:0.1em; text-transform:uppercase; border-radius:2px; }
+  nav { display:flex; gap:1rem; font-size:0.56rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); align-items:center; flex-wrap:wrap; }
+  nav a { color:inherit; text-decoration:none; cursor:pointer; transition:color 0.2s; padding-bottom:2px; border-bottom:1px solid transparent; }
+  nav a:hover { color:var(--ink); }
+  nav a.active { color:var(--teal); border-bottom-color:var(--teal); }
+  .page { display:none; }
+  .page.active { display:block; }
+  .hero { padding:5rem 3rem 4rem; max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+  .hero-label { font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--rust); margin-bottom:1.2rem; display:flex; align-items:center; gap:0.5rem; }
+  .hero-label::before { content:''; width:24px; height:1px; background:var(--rust); }
+  h1 { font-family:'Playfair Display',serif; font-size:4.2rem; line-height:1.05; font-weight:900; letter-spacing:-0.02em; margin-bottom:1.5rem; }
+  h1 em { font-style:italic; color:var(--teal); }
+  .hero-desc { font-size:0.78rem; line-height:1.8; color:var(--muted); max-width:420px; margin-bottom:2rem; }
+  .hero-cta { display:inline-flex; align-items:center; gap:0.8rem; background:var(--ink); color:var(--paper); padding:0.9rem 1.8rem; font-family:'DM Mono',monospace; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; border:none; cursor:pointer; transition:all 0.2s; text-decoration:none; }
+  .hero-cta:hover { background:var(--teal); transform:translateY(-1px); }
+  .stats-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-top:3rem; }
+  .stat-cell { background:var(--cream); padding:1.5rem; text-align:center; }
+  .stat-number { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:700; color:var(--gold); display:block; }
+  .stat-label { font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-top:0.3rem; }
+  .pipeline-panel { background:var(--ink); color:var(--paper); border-radius:4px; padding:2rem; position:relative; overflow:hidden; min-height:480px; }
+  .pipeline-title { font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1.5rem; padding-bottom:0.8rem; border-bottom:1px solid rgba(255,255,255,0.08); }
+  .pipeline-steps { display:flex; flex-direction:column; gap:0.5rem; }
+  .p-step { display:flex; align-items:center; gap:1rem; padding:0.7rem 1rem; border:1px solid rgba(255,255,255,0.06); border-radius:3px; cursor:pointer; transition:all 0.25s; }
+  .p-step.active { border-color:var(--gold); background:rgba(201,168,76,0.08); }
+  .p-step-icon { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; background:rgba(255,255,255,0.05); }
+  .p-step.active .p-step-icon { background:var(--gold); }
+  .p-step-info { flex:1; }
+  .p-step-name { font-size:0.68rem; font-weight:500; margin-bottom:0.1rem; }
+  .p-step-desc { font-size:0.56rem; color:rgba(255,255,255,0.4); }
+  .p-step-status { font-size:0.52rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.2rem 0.5rem; border-radius:2px; background:rgba(42,125,111,0.2); color:#5ecdb8; border:1px solid rgba(42,125,111,0.3); white-space:nowrap; }
+  .module-section { max-width:1200px; margin:0 auto; padding:4rem 3rem; border-bottom:1px solid var(--border); }
+  .generator-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start; }
+  .input-group { margin-bottom:1rem; }
+  .input-label { display:block; font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem; }
+  .input-field { width:100%; background:var(--cream); border:1px solid var(--border); padding:0.7rem 0.9rem; font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--ink); outline:none; transition:border-color 0.2s; border-radius:2px; line-height:1.5; }
+  .input-field:focus { border-color:var(--teal); box-shadow:0 0 0 2px rgba(42,125,111,0.08); }
+  textarea.input-field { resize:vertical; min-height:80px; }
+  select.input-field { cursor:pointer; }
+  .generate-btn { width:100%; padding:1rem; background:var(--teal); color:white; border:none; font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; margin-top:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.6rem; border-radius:2px; }
+  .generate-btn:hover { background:#1e5e53; transform:translateY(-1px); }
+  .generate-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .regen-btn { padding:0.55rem 1rem; background:transparent; color:var(--muted); border:1px solid var(--border); font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border-radius:2px; margin-top:0.8rem; }
+  .copy-btn { padding:0.4rem 0.8rem; background:var(--cream); color:var(--muted); border:1px solid var(--border); font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.08em; cursor:pointer; transition:all 0.2s; border-radius:2px; }
+  .copy-btn:hover { color:var(--ink); border-color:var(--teal); }
+  .output-panel { background:var(--cream); border:1px solid var(--border); min-height:420px; border-radius:2px; overflow:hidden; }
+  .output-topbar { background:var(--ink); padding:0.7rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+  .output-topbar-title { color:var(--gold); font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; }
+  .terminal-dots { display:flex; gap:0.35rem; }
+  .terminal-dot { width:8px; height:8px; border-radius:50%; }
+  .dot-r { background:#ff5f57; } .dot-y { background:#febc2e; } .dot-g { background:#28c840; }
+  .output-body { padding:1.5rem; min-height:380px; }
+  .output-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; height:350px; color:var(--muted); text-align:center; gap:1rem; }
+  .output-placeholder-icon { font-size:2.5rem; opacity:0.3; }
+  .output-placeholder-text { font-size:0.7rem; letter-spacing:0.05em; line-height:1.7; }
+  .loading-state { display:none; flex-direction:column; gap:0.8rem; padding:1.5rem 0; }
+  .loading-state.visible { display:flex; }
+  .loading-progress { width:100%; height:2px; background:var(--border); margin-top:0.5rem; overflow:hidden; }
+  .loading-progress-fill { height:100%; background:linear-gradient(90deg,var(--teal),var(--gold)); width:0; transition:width 3.5s ease; }
+  .ai-result { display:none; }
+  .ai-result.visible { display:block; animation:fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .result-text { font-size:0.73rem; line-height:1.85; color:var(--ink); white-space:pre-wrap; word-break:break-word; }
+  .result-actions { display:flex; gap:0.6rem; margin-top:1rem; flex-wrap:wrap; }
+  .logo-canvas { background:white; border:1px solid var(--border); border-radius:2px; min-height:240px; display:flex; align-items:center; justify-content:center; padding:2rem; margin-top:0.8rem; overflow:hidden; }
+  .logo-canvas img { max-width:100%; max-height:300px; object-fit:contain; }
+  .logo-actions { display:none; margin-top:0.8rem; gap:0.6rem; flex-wrap:wrap; }
+  .platform-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:0.4rem; margin-bottom:1rem; }
+  .platform-btn { padding:0.6rem 0.3rem; border:1px solid var(--border); background:var(--cream); font-family:'DM Mono',monospace; font-size:0.56rem; letter-spacing:0.04em; cursor:pointer; transition:all 0.15s; text-align:center; border-radius:2px; text-transform:uppercase; color:var(--muted); }
+  .platform-btn:hover,.platform-btn.selected { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .platform-btn .platform-icon { font-size:1rem; display:block; margin-bottom:0.3rem; }
+  .platform-btn .platform-dim { font-size:0.48rem; color:rgba(255,255,255,0.4); margin-top:0.2rem; display:none; }
+  .platform-btn.selected .platform-dim { display:block; }
+  .banner-canvas { background:white; border:1px solid var(--border); border-radius:2px; display:flex; align-items:center; justify-content:center; padding:1rem; margin-top:0.8rem; overflow:hidden; min-height:180px; }
+  .banner-canvas img { max-width:100%; max-height:260px; object-fit:contain; border-radius:2px; }
+  .banner-actions { display:none; margin-top:0.8rem; gap:0.6rem; flex-wrap:wrap; }
+  .banner-info { background:var(--ink); color:var(--paper); padding:0.6rem 1rem; border-radius:2px; font-size:0.6rem; margin-top:0.6rem; display:none; }
+  .banner-info span { color:var(--gold); }
+  .features-section { background:var(--ink); color:var(--paper); padding:5rem 3rem; }
+  .features-inner { max-width:1200px; margin:0 auto; }
+  .features-header { display:grid; grid-template-columns:1fr 2fr; gap:3rem; margin-bottom:3.5rem; align-items:end; }
+  .features-title { font-family:'Playfair Display',serif; font-size:3rem; font-weight:900; line-height:1.1; }
+  .features-intro { font-size:0.75rem; line-height:1.8; color:rgba(255,255,255,0.5); max-width:500px; }
+  .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); }
+  .feature-cell { background:var(--ink); padding:2rem; transition:background 0.3s; cursor:pointer; }
+  .feature-cell:hover { background:#111118; }
+  .feature-icon { font-size:1.8rem; margin-bottom:1rem; display:block; }
+  .feature-name { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; margin-bottom:0.6rem; }
+  .feature-desc { font-size:0.65rem; line-height:1.7; color:rgba(255,255,255,0.4); }
+  .feature-tag { display:inline-block; margin-top:0.8rem; font-size:0.55rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.2rem 0.5rem; border:1px solid rgba(201,168,76,0.3); color:var(--gold-light); }
+  .feature-launch-btn { display:inline-block; margin-top:1rem; font-size:0.58rem; letter-spacing:0.12em; text-transform:uppercase; padding:0.4rem 0.9rem; background:rgba(42,125,111,0.2); color:#5ecdb8; border:1px solid rgba(42,125,111,0.3); cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.2s; border-radius:2px; }
+  .feature-launch-btn:hover { background:rgba(42,125,111,0.4); }
+  .module-hero { background:var(--ink); color:var(--paper); padding:3rem 3rem 2.5rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .module-hero-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+  .module-hero-label { font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:0.6rem; }
+  .module-hero-title { font-family:'Playfair Display',serif; font-size:2.4rem; font-weight:900; line-height:1.1; }
+  .module-hero-title em { color:var(--gold); font-style:italic; }
+  .module-hero-desc { font-size:0.7rem; color:rgba(255,255,255,0.5); margin-top:0.5rem; max-width:380px; line-height:1.7; }
+  .module-back-btn { display:flex; align-items:center; gap:0.5rem; color:rgba(255,255,255,0.4); font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:color 0.2s; border:none; background:none; font-family:'DM Mono',monospace; padding:0.5rem; }
+  .module-back-btn:hover { color:var(--gold); }
+  .content-type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.4rem; margin-bottom:1rem; }
+  .content-type-btn { padding:0.6rem 0.5rem; border:1px solid var(--border); background:var(--cream); font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.04em; cursor:pointer; transition:all 0.15s; text-align:center; border-radius:2px; text-transform:uppercase; color:var(--muted); }
+  .content-type-btn:hover,.content-type-btn.selected { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .chat-container { display:flex; flex-direction:column; height:500px; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+  .chat-messages { flex:1; overflow-y:auto; padding:1.5rem; background:var(--cream); display:flex; flex-direction:column; gap:1rem; }
+  .chat-msg { max-width:75%; padding:0.8rem 1rem; border-radius:4px; font-size:0.72rem; line-height:1.6; }
+  .chat-msg.user { background:var(--teal); color:white; align-self:flex-end; }
+  .chat-msg.bot { background:white; border:1px solid var(--border); color:var(--ink); align-self:flex-start; }
+  .chat-input-row { display:flex; gap:0.5rem; padding:1rem; background:var(--cream); border-top:1px solid var(--border); }
+  .chat-input { flex:1; padding:0.7rem 1rem; border:1px solid var(--border); background:white; font-family:'DM Mono',monospace; font-size:0.72rem; border-radius:2px; outline:none; }
+  .chat-input:focus { border-color:var(--teal); }
+  .chat-send-btn { padding:0.7rem 1.2rem; background:var(--teal); color:white; border:none; font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border-radius:2px; transition:all 0.2s; }
+  .chat-send-btn:hover { background:#1e5e53; }
+  footer { background:var(--ink); color:rgba(255,255,255,0.3); padding:2rem 3rem; display:flex; justify-content:space-between; align-items:center; font-size:0.6rem; letter-spacing:0.1em; }
+  .footer-brand { font-family:'Playfair Display',serif; font-size:1rem; color:rgba(255,255,255,0.7); }
+  .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--paper); padding:0.8rem 1.5rem; font-size:0.65rem; letter-spacing:0.1em; border-radius:2px; opacity:0; transition:all 0.3s; z-index:9999; pointer-events:none; white-space:nowrap; border-left:3px solid var(--gold); }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .error-banner { background:#fff0f0; border:1px solid #ffcccc; border-left:4px solid #e74c3c; padding:0.8rem 1.2rem; border-radius:2px; font-size:0.68rem; color:#c0392b; margin-bottom:1rem; display:none; }
+  .error-banner.visible { display:block; }
+  .hint-text { font-size:0.6rem; color:var(--muted); margin-top:0.6rem; line-height:1.6; }
+  @media(max-width:1100px) { .features-grid { grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:900px) {
+    .hero,.generator-grid,.features-header { grid-template-columns:1fr; }
+    .features-grid { grid-template-columns:repeat(2,1fr); }
+    .platform-grid { grid-template-columns:repeat(3,1fr); }
+    header { padding:1rem 1.5rem; }
+    nav { display:none; }
+    .hero,.module-section,.features-section { padding-left:1.5rem; padding-right:1.5rem; }
+    h1 { font-size:2.8rem; }
+    .module-hero-inner { flex-direction:column; align-items:flex-start; gap:1rem; }
+    .stats-strip { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<header>
+  <div class="logo" onclick="goHome()">BrandForge <span class="logo-badge">AI</span></div>
+  <nav id="mainNav">
+    <a onclick="goHome()" id="nav-home">Overview</a>
+    <a onclick="showModule('brand')" id="nav-brand">Brand Names</a>
+    <a onclick="showModule('logo')" id="nav-logo">Logo</a>
+    <a onclick="showModule('banner')" id="nav-banner">Banner</a>
+    <a onclick="showModule('content')" id="nav-content">Content</a>
+    <a onclick="showModule('design')" id="nav-design">Design</a>
+    <a onclick="showModule('sentiment')" id="nav-sentiment">Sentiment</a>
+    <a onclick="showModule('chat')" id="nav-chat">AI Chat</a>
+    <a onclick="showModule('adcreative')" id="nav-adcreative">Ad Creative</a>
+    <a onclick="showModule('branding')" id="nav-branding">Branding</a>
+  </nav>
+</header>
+
+<!-- ═══════════ HOME ═══════════ -->
+<div class="page active" id="page-home">
+  <section style="max-width:1200px;margin:0 auto;padding:0 3rem;">
+    <div class="hero" style="padding-left:0;padding-right:0;">
+      <div>
+        <div class="hero-label">Generative AI Platform</div>
+        <h1>Build a Brand<br>from <em>Nothing</em><br>to Launch-Ready.</h1>
+        <p class="hero-desc">One platform for complete brand identity — names, logos, banners, content, color palettes, sentiment analysis, ad creatives, branding assistant, and AI chat — powered by Groq LLaMA, DALL-E 3 & IBM Granite.</p>
+        <a class="hero-cta" onclick="showModule('brand')" style="cursor:pointer;">Launch Brand Studio <span>→</span></a>
+        <div class="stats-strip">
+          <div class="stat-cell"><span class="stat-number">9</span><div class="stat-label">AI Modules</div></div>
+          <div class="stat-cell"><span class="stat-number">3</span><div class="stat-label">AI Models</div></div>
+          <div class="stat-cell"><span class="stat-number">5</span><div class="stat-label">Platforms</div></div>
+          <div class="stat-cell"><span class="stat-number">∞</span><div class="stat-label">Brand Ideas</div></div>
+        </div>
+      </div>
+      <div class="pipeline-panel">
+        <div class="pipeline-title">// Branding Automation Pipeline</div>
+        <div class="pipeline-steps" id="pipelineSteps">
+          <div class="p-step active" onclick="showModule('brand')"><div class="p-step-icon">🎯</div><div class="p-step-info"><div class="p-step-name">Brand Name Generator</div><div class="p-step-desc">Groq LLaMA · keyword-aware · tone-aligned</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('logo')"><div class="p-step-icon">🎨</div><div class="p-step-info"><div class="p-step-name">Logo Creator</div><div class="p-step-desc">DALL-E 3 · SVG fallback · PNG output</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('banner')"><div class="p-step-icon">🖼</div><div class="p-step-info"><div class="p-step-name">Banner Generator</div><div class="p-step-desc">YouTube · LinkedIn · Twitter · Facebook · IG</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('content')"><div class="p-step-icon">⚡</div><div class="p-step-info"><div class="p-step-name">Marketing Content</div><div class="p-step-desc">Posts · emails · descriptions · ad copy</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('design')"><div class="p-step-icon">🖌</div><div class="p-step-info"><div class="p-step-name">Design System</div><div class="p-step-desc">Color palettes · fonts · brand guidelines</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('sentiment')"><div class="p-step-icon">💬</div><div class="p-step-info"><div class="p-step-name">Sentiment Analyzer</div><div class="p-step-desc">Review analysis · professional rewrite</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('chat')"><div class="p-step-icon">🤖</div><div class="p-step-info"><div class="p-step-name">AI Branding Chat</div><div class="p-step-desc">IBM Granite · expert branding consultant</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('adcreative')"><div class="p-step-icon">📣</div><div class="p-step-info"><div class="p-step-name">Ad Creative Generator</div><div class="p-step-desc">Headlines · copy · CTA · hashtags · A/B</div></div><span class="p-step-status">Launch →</span></div>
+          <div class="p-step" onclick="showModule('branding')"><div class="p-step-icon">🧠</div><div class="p-step-info"><div class="p-step-name">Branding Assistant</div><div class="p-step-desc">Full audit · positioning · voice · identity</div></div><span class="p-step-status">Launch →</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="features-section">
+    <div class="features-inner">
+      <div class="features-header">
+        <h2 class="features-title">Nine Modules.<br>One Platform.</h2>
+        <p class="features-intro">Every component of a brand identity handled by a dedicated AI module — Groq LLaMA-3.3-70B for text, DALL-E 3 + HF for visuals, IBM Granite for strategic chat, plus Ad Creative and Branding Assistant.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-cell" onclick="showModule('brand')"><span class="feature-icon">🎯</span><div class="feature-name">Brand Name Generator</div><div class="feature-desc">10 unique, keyword-aware brand names with taglines and domain hints.</div><span class="feature-tag">Groq LLaMA</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('logo')"><span class="feature-icon">🎨</span><div class="feature-name">Logo Creator</div><div class="feature-desc">AI-generated logo via DALL-E 3. SVG fallback with 10 unique styles.</div><span class="feature-tag">DALL-E 3 + SVG</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('banner')"><span class="feature-icon">🖼</span><div class="feature-name">Banner Generator</div><div class="feature-desc">Platform-specific banners for YouTube, LinkedIn, Twitter, Facebook & Instagram.</div><span class="feature-tag">DALL-E 3 + HF</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('content')"><span class="feature-icon">⚡</span><div class="feature-name">Marketing Content</div><div class="feature-desc">Product descriptions, social posts, emails, ad copy — all in your brand voice.</div><span class="feature-tag">Groq LLaMA</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('design')"><span class="feature-icon">🖌</span><div class="feature-name">Design System</div><div class="feature-desc">AI-curated color palettes, font pairings, and visual brand guidelines.</div><span class="feature-tag">Groq LLaMA</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('sentiment')"><span class="feature-icon">💬</span><div class="feature-name">Review Analyzer</div><div class="feature-desc">Sentiment classification + professional rewrite of customer reviews.</div><span class="feature-tag">Groq LLaMA</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('chat')"><span class="feature-icon">🤖</span><div class="feature-name">AI Branding Chat</div><div class="feature-desc">Expert branding guidance powered by IBM Granite with Groq fallback.</div><span class="feature-tag">IBM Granite</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('adcreative')" style="border:1px solid rgba(201,168,76,0.2);"><span class="feature-icon">📣</span><div class="feature-name">Ad Creative Generator</div><div class="feature-desc">Complete ad package — headline, 3 copy variations, CTA, hashtags, A/B test + 3 example images.</div><span class="feature-tag" style="border-color:rgba(201,168,76,0.5);color:var(--gold);">Groq + HF Images</span><div><span class="feature-launch-btn">Open →</span></div></div>
+        <div class="feature-cell" onclick="showModule('branding')" style="border:1px solid rgba(201,168,76,0.2);"><span class="feature-icon">🧠</span><div class="feature-name">Branding Assistant</div><div class="feature-desc">Full brand audit, positioning, competitor analysis, brand voice guide, visual identity brief.</div><span class="feature-tag" style="border-color:rgba(201,168,76,0.5);color:var(--gold);">Groq LLaMA</span><div><span class="feature-launch-btn">Open →</span></div></div>
+      </div>
+    </div>
+  </section>
+  <footer><div class="footer-brand">BrandForge AI</div><div>© 2025 BrandForge AI — IBM Granite · Groq LLaMA-3.3-70B · DALL-E 3</div></footer>
+</div>
+
+<!-- ═══════════ MODULE 01: BRAND NAMES ═══════════ -->
+<div class="page" id="page-brand">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 01</div><h2 class="module-hero-title">Brand <em>Name</em> Generator</h2><p class="module-hero-desc">Enter your industry and keywords to receive 10 unique, creative brand names with taglines and domain hints.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-brand"></div>
+      <div class="input-group"><label class="input-label">Keywords</label><input class="input-field" type="text" id="brand-keywords" placeholder="e.g. smart, innovative, affordable"></div>
+      <div class="input-group"><label class="input-label">Industry</label><select class="input-field" id="brand-industry"><option>Technology</option><option>Health & Wellness</option><option>Food & Beverage</option><option>Fashion & Lifestyle</option><option>Finance & Fintech</option><option>Education</option><option>E-commerce</option><option>Real Estate</option></select></div>
+      <div class="input-group"><label class="input-label">Brand Tone</label><select class="input-field" id="brand-tone"><option>Professional</option><option>Playful</option><option>Luxury</option><option>Minimal</option><option>Bold</option><option>Trustworthy</option></select></div>
+      <button class="generate-btn" onclick="generateBrand()" id="btn-brand">✦ Generate Brand Names</button>
+    </div>
+    <div class="output-panel">
+      <div class="output-topbar"><span class="output-topbar-title">// Brand Names Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+      <div class="output-body">
+        <div class="output-placeholder" id="ph-brand"><div class="output-placeholder-icon">🎯</div><div class="output-placeholder-text">Enter keywords and industry<br>then click Generate.</div></div>
+        <div class="loading-state" id="load-brand"><div style="font-size:0.65rem;color:var(--muted);">Generating brand names via Groq LLaMA…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-brand"></div></div></div>
+        <div class="ai-result" id="res-brand"><div class="result-text" id="text-brand"></div><div class="result-actions"><button class="copy-btn" onclick="copyText('text-brand')">Copy</button><button class="regen-btn" onclick="generateBrand()">↺ Regenerate</button></div></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ MODULE 02: LOGO ═══════════ -->
+<div class="page" id="page-logo">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 02</div><h2 class="module-hero-title">Logo <em>Creator</em></h2><p class="module-hero-desc">Generate a professional logo using DALL-E 3 (if connected) or our instant SVG engine with 10 unique styles.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-logo"></div>
+      <div class="input-group"><label class="input-label">Brand Name</label><input class="input-field" type="text" id="logo-name" placeholder="e.g. TechVision"></div>
+      <div class="input-group"><label class="input-label">Industry</label><select class="input-field" id="logo-industry"><option>Technology</option><option>Health & Wellness</option><option>Food & Beverage</option><option>Fashion</option><option>Finance</option><option>Education</option></select></div>
+      <div class="input-group"><label class="input-label">Style Keywords</label><input class="input-field" type="text" id="logo-keywords" placeholder="e.g. modern, minimal, futuristic"></div>
+      <button class="generate-btn" onclick="generateLogo()" id="btn-logo">🎨 Generate Logo & Image</button>
+      <p class="hint-text">DALL-E 3 used if OPENAI_API_KEY is set. SVG always generated as fallback.</p>
+    </div>
+    <div>
+      <div class="output-panel">
+        <div class="output-topbar"><span class="output-topbar-title">// Logo Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+        <div class="output-body">
+          <div class="output-placeholder" id="ph-logo"><div class="output-placeholder-icon">🎨</div><div class="output-placeholder-text">Fill in brand name and click Generate.</div></div>
+          <div class="loading-state" id="load-logo"><div style="font-size:0.65rem;color:var(--muted);">Generating logo…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-logo"></div></div></div>
+          <div class="ai-result" id="res-logo">
+            <div class="result-text" id="text-logo" style="margin-bottom:1rem;"></div>
+            <div class="logo-canvas" id="logo-canvas" style="display:none;"><img id="logo-img" src="" alt="Generated Logo" style="max-width:100%;max-height:340px;object-fit:contain;"></div>
+            <div class="logo-actions" id="logo-actions">
+              <button class="copy-btn" onclick="copyText('text-logo')">Copy Prompt</button>
+              <button class="copy-btn" id="btn-dl-png" onclick="downloadImageBlob('logo-img','brandforge-logo.png')">⬇ Download PNG</button>
+              <button class="copy-btn" id="btn-dl-svg" onclick="downloadSVG()" style="display:none;">⬇ Download SVG</button>
+              <button class="regen-btn" style="margin-top:0;" onclick="generateLogo()">↺ Regenerate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ MODULE 03: BANNER ═══════════ -->
+<div class="page" id="page-banner">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 03</div><h2 class="module-hero-title">Banner <em>Generator</em></h2><p class="module-hero-desc">Create platform-perfect social media banners at exact dimensions for YouTube, LinkedIn, Twitter, Facebook, and Instagram.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-banner"></div>
+      <div class="input-group"><label class="input-label">Platform</label>
+        <div class="platform-grid">
+          <div class="platform-btn selected" onclick="selectPlatform(this,'youtube')"><span class="platform-icon">▶</span>YouTube<div class="platform-dim">2560×1440</div></div>
+          <div class="platform-btn" onclick="selectPlatform(this,'linkedin')"><span class="platform-icon">in</span>LinkedIn<div class="platform-dim">1584×396</div></div>
+          <div class="platform-btn" onclick="selectPlatform(this,'twitter')"><span class="platform-icon">𝕏</span>Twitter<div class="platform-dim">1500×500</div></div>
+          <div class="platform-btn" onclick="selectPlatform(this,'facebook')"><span class="platform-icon">f</span>Facebook<div class="platform-dim">820×312</div></div>
+          <div class="platform-btn" onclick="selectPlatform(this,'instagram')"><span class="platform-icon">◻</span>Instagram<div class="platform-dim">1080×1080</div></div>
+        </div>
+        <input type="hidden" id="banner-platform-val" value="youtube">
+      </div>
+      <div class="input-group"><label class="input-label">Brand Name</label><input class="input-field" type="text" id="banner-brand" placeholder="e.g. TechVision"></div>
+      <div class="input-group"><label class="input-label">Tagline <span style="color:var(--muted);font-size:0.55rem;">(optional)</span></label><input class="input-field" type="text" id="banner-tagline" placeholder="e.g. See Further. Build Faster."></div>
+      <div class="input-group"><label class="input-label">Style</label><select class="input-field" id="banner-style">
+        <option value="modern gradient dark">Modern Dark Gradient</option>
+        <option value="minimal clean white">Minimal Clean</option>
+        <option value="bold vibrant colorful">Bold & Vibrant</option>
+        <option value="luxury elegant gold">Luxury & Elegant</option>
+        <option value="tech futuristic neon">Tech Futuristic</option>
+        <option value="nature organic green">Nature & Organic</option>
+      </select></div>
+      <div class="input-group"><label class="input-label">Format</label><select class="input-field" id="banner-format"><option value="png">PNG</option><option value="jpeg">JPEG</option></select></div>
+      <button class="generate-btn" onclick="generateBanner()" id="btn-banner">🖼 Generate Banner</button>
+      <p class="hint-text">Uses DALL-E 3 (best) or HF if available.</p>
+    </div>
+    <div>
+      <div class="output-panel">
+        <div class="output-topbar"><span class="output-topbar-title">// Banner Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+        <div class="output-body">
+          <div class="output-placeholder" id="ph-banner"><div class="output-placeholder-icon">🖼</div><div class="output-placeholder-text">Select a platform, fill in brand name<br>and click Generate Banner.</div></div>
+          <div class="loading-state" id="load-banner"><div style="font-size:0.65rem;color:var(--muted);">Generating banner…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-banner"></div></div></div>
+          <div class="ai-result" id="res-banner">
+            <div class="banner-info" id="banner-info">Platform: <span id="banner-info-platform">—</span> &nbsp;|&nbsp; Dimensions: <span id="banner-info-dim">—</span></div>
+            <div class="banner-canvas" id="banner-canvas" style="display:none;"><img id="banner-img" src="" alt="Generated Banner"></div>
+            <div class="result-text" id="text-banner" style="margin-top:0.8rem;font-size:0.65rem;color:var(--muted);"></div>
+            <div class="banner-actions" id="banner-actions">
+              <button class="copy-btn" onclick="copyText('text-banner')">Copy Prompt</button>
+              <button class="copy-btn" onclick="downloadImageBlob('banner-img','brandforge-banner.png')">⬇ Download</button>
+              <button class="regen-btn" style="margin-top:0;" onclick="generateBanner()">↺ Regenerate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:1rem;background:var(--ink);color:var(--paper);padding:1rem 1.2rem;border-radius:2px;">
+        <div style="font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.8rem;">// Platform Dimensions</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.62rem;">
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><th style="text-align:left;padding:0.4rem 0;color:var(--muted);font-weight:normal;">Platform</th><th style="text-align:left;padding:0.4rem 0;color:var(--muted);font-weight:normal;">Size</th></tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:0.4rem 0;">▶ YouTube</td><td style="color:var(--gold-light);">2560 × 1440 px</td></tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:0.4rem 0;">in LinkedIn</td><td style="color:var(--gold-light);">1584 × 396 px</td></tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:0.4rem 0;">𝕏 Twitter/X</td><td style="color:var(--gold-light);">1500 × 500 px</td></tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);"><td style="padding:0.4rem 0;">f Facebook</td><td style="color:var(--gold-light);">820 × 312 px</td></tr>
+          <tr><td style="padding:0.4rem 0;">◻ Instagram</td><td style="color:var(--gold-light);">1080 × 1080 px</td></tr>
+        </table>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ MODULE 04: CONTENT ═══════════ -->
+<div class="page" id="page-content">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 04</div><h2 class="module-hero-title">Marketing <em>Content</em></h2><p class="module-hero-desc">Generate on-brand marketing content — product descriptions, social posts, emails, and ad copy.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-content"></div>
+      <div class="input-group"><label class="input-label">Brand Description</label><textarea class="input-field" id="content-desc" placeholder="Describe your brand or product…"></textarea></div>
+      <div class="input-group"><label class="input-label">Content Type</label>
+        <div class="content-type-grid">
+          <div class="content-type-btn selected" onclick="selectContentType(this,'product_description')">Product Desc</div>
+          <div class="content-type-btn" onclick="selectContentType(this,'social_post')">Social Post</div>
+          <div class="content-type-btn" onclick="selectContentType(this,'email')">Email</div>
+          <div class="content-type-btn" onclick="selectContentType(this,'ad_copy')">Ad Copy</div>
+          <div class="content-type-btn" onclick="selectContentType(this,'tagline')">Taglines</div>
+          <div class="content-type-btn" onclick="selectContentType(this,'brand_story')">Brand Story</div>
+        </div>
+        <input type="hidden" id="ct-type-val" value="product_description">
+      </div>
+      <div class="input-group"><label class="input-label">Tone</label><select class="input-field" id="content-tone"><option>Professional</option><option>Playful</option><option>Luxury</option><option>Conversational</option><option>Inspirational</option><option>Witty</option></select></div>
+      <button class="generate-btn" onclick="generateContent()" id="btn-content">⚡ Generate Content</button>
+    </div>
+    <div class="output-panel">
+      <div class="output-topbar"><span class="output-topbar-title">// Content Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+      <div class="output-body">
+        <div class="output-placeholder" id="ph-content"><div class="output-placeholder-icon">⚡</div><div class="output-placeholder-text">Describe your brand and click Generate.</div></div>
+        <div class="loading-state" id="load-content"><div style="font-size:0.65rem;color:var(--muted);">Generating content via Groq LLaMA…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-content"></div></div></div>
+        <div class="ai-result" id="res-content"><div class="result-text" id="text-content"></div><div class="result-actions"><button class="copy-btn" onclick="copyText('text-content')">Copy</button><button class="regen-btn" onclick="generateContent()">↺ Regenerate</button></div></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ MODULE 05: DESIGN SYSTEM ═══════════ -->
+<div class="page" id="page-design">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 05</div><h2 class="module-hero-title">Design <em>System</em></h2><p class="module-hero-desc">Get AI-curated color palettes, font pairings, and visual brand guidelines.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-design"></div>
+      <div class="input-group"><label class="input-label">Brand Tone</label><select class="input-field" id="design-tone"><option>Professional</option><option>Playful</option><option>Luxury</option><option>Minimal</option><option>Bold</option><option>Eco & Natural</option></select></div>
+      <div class="input-group"><label class="input-label">Industry</label><select class="input-field" id="design-industry"><option>Technology</option><option>Health & Wellness</option><option>Food & Beverage</option><option>Fashion</option><option>Finance</option><option>Education</option></select></div>
+      <button class="generate-btn" onclick="generateDesign()" id="btn-design">🖌 Get Design System</button>
+    </div>
+    <div class="output-panel">
+      <div class="output-topbar"><span class="output-topbar-title">// Design System Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+      <div class="output-body">
+        <div class="output-placeholder" id="ph-design"><div class="output-placeholder-icon">🖌</div><div class="output-placeholder-text">Select tone and industry, then click Generate.</div></div>
+        <div class="loading-state" id="load-design"><div style="font-size:0.65rem;color:var(--muted);">Generating palette via Groq LLaMA…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-design"></div></div></div>
+        <div class="ai-result" id="res-design"><div class="result-text" id="text-design"></div><div class="result-actions"><button class="copy-btn" onclick="copyText('text-design')">Copy</button><button class="regen-btn" onclick="generateDesign()">↺ Regenerate</button></div></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ MODULE 06: SENTIMENT ═══════════ -->
+<div class="page" id="page-sentiment">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 06</div><h2 class="module-hero-title">Review <em>Analyzer</em></h2><p class="module-hero-desc">Paste a customer review to get sentiment analysis and a professional rewrite.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-sentiment"></div>
+      <div class="input-group"><label class="input-label">Customer Review</label><textarea class="input-field" id="sentiment-text" style="min-height:120px;" placeholder="Paste customer review here…"></textarea></div>
+      <div class="input-group"><label class="input-label">Brand Tone</label><select class="input-field" id="sentiment-tone"><option>Professional</option><option>Friendly</option><option>Luxury</option><option>Empathetic</option></select></div>
+      <button class="generate-btn" onclick="analyzeSentiment()" id="btn-sentiment">💬 Analyze & Rewrite</button>
+    </div>
+    <div class="output-panel">
+      <div class="output-topbar"><span class="output-topbar-title">// Sentiment Analysis Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+      <div class="output-body">
+        <div class="output-placeholder" id="ph-sentiment"><div class="output-placeholder-icon">💬</div><div class="output-placeholder-text">Paste a review and click Analyze.</div></div>
+        <div class="loading-state" id="load-sentiment"><div style="font-size:0.65rem;color:var(--muted);">Analyzing sentiment via Groq LLaMA…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-sentiment"></div></div></div>
+        <div class="ai-result" id="res-sentiment"><div class="result-text" id="text-sentiment"></div><div class="result-actions"><button class="copy-btn" onclick="copyText('text-sentiment')">Copy</button><button class="regen-btn" onclick="analyzeSentiment()">↺ Re-analyze</button></div></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ MODULE 07: CHAT ═══════════ -->
+<div class="page" id="page-chat">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 07</div><h2 class="module-hero-title">AI Branding <em>Chat</em></h2><p class="module-hero-desc">Ask branding questions and get strategic advice from IBM Granite + Groq LLaMA.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section">
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg bot">👋 Hi! I'm BrandForge AI — your branding consultant. Ask me anything about brand strategy, naming, logos, banners, or marketing.</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Ask about branding…" onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send-btn" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODULE 08: AD CREATIVE ═══════════ -->
+<div class="page" id="page-adcreative">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 08</div><h2 class="module-hero-title">Ad <em>Creative</em> Generator</h2><p class="module-hero-desc">Generate a complete ad creative package — headlines, 3 copy variations, CTAs, visual direction, hashtags, A/B test suggestions + 3 example images.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-adcreative"></div>
+      <div class="input-group"><label class="input-label">Brand Name</label><input class="input-field" type="text" id="ad-brand" placeholder="e.g. TechVision"></div>
+      <div class="input-group"><label class="input-label">Product / Service</label><input class="input-field" type="text" id="ad-product" placeholder="e.g. AI-powered project management app"></div>
+      <div class="input-group"><label class="input-label">Target Audience</label><input class="input-field" type="text" id="ad-audience" placeholder="e.g. Startup founders aged 25-40"></div>
+      <div class="input-group"><label class="input-label">Platform</label><select class="input-field" id="ad-platform"><option>Instagram</option><option>Facebook</option><option>LinkedIn</option><option>Twitter/X</option><option>Google Ads</option><option>YouTube</option><option>TikTok</option></select></div>
+      <div class="input-group"><label class="input-label">Campaign Goal</label><select class="input-field" id="ad-goal"><option>Awareness</option><option>Lead Generation</option><option>Conversions</option><option>App Downloads</option><option>Website Traffic</option><option>Engagement</option></select></div>
+      <div class="input-group"><label class="input-label">Tone</label><select class="input-field" id="ad-tone"><option>Professional</option><option>Playful</option><option>Urgent</option><option>Inspirational</option><option>Conversational</option><option>Luxury</option></select></div>
+      <button class="generate-btn" onclick="generateAdCreative()" id="btn-adcreative">📣 Generate Ad Creative</button>
+    </div>
+    <div class="output-panel">
+      <div class="output-topbar"><span class="output-topbar-title">// Ad Creative Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+      <div class="output-body">
+        <div class="output-placeholder" id="ph-adcreative"><div class="output-placeholder-icon">📣</div><div class="output-placeholder-text">Fill in your brand details<br>and click Generate Ad Creative.</div></div>
+        <div class="loading-state" id="load-adcreative"><div style="font-size:0.65rem;color:var(--muted);">Generating ad creative package via Groq LLaMA…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-adcreative"></div></div></div>
+        <div class="ai-result" id="res-adcreative">
+          <div class="result-text" id="text-adcreative"></div>
+          <div id="ad-images-section" style="display:none;margin-top:1.2rem;">
+            <div style="font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.8rem;">// Example Ad Visuals</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;" id="ad-images-grid"></div>
+          </div>
+          <div class="result-actions"><button class="copy-btn" onclick="copyText('text-adcreative')">Copy All</button><button class="regen-btn" onclick="generateAdCreative()">↺ Regenerate</button></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════════ MODULE 09: BRANDING ASSISTANT ═══════════ -->
+<div class="page" id="page-branding">
+  <div class="module-hero"><div class="module-hero-inner"><div><div class="module-hero-label">// Module 09</div><h2 class="module-hero-title">Branding <em>Assistant</em></h2><p class="module-hero-desc">Your AI brand strategist — full audit, positioning strategy, competitor analysis, brand voice guide, or visual identity brief.</p></div><button class="module-back-btn" onclick="goHome()">← Back</button></div></div>
+  <div class="module-section"><div class="generator-grid">
+    <div>
+      <div class="error-banner" id="err-branding"></div>
+      <div class="input-group"><label class="input-label">Brand Name</label><input class="input-field" type="text" id="ba-brand" placeholder="e.g. TechVision"></div>
+      <div class="input-group"><label class="input-label">Industry</label><select class="input-field" id="ba-industry"><option>Technology</option><option>Health & Wellness</option><option>Food & Beverage</option><option>Fashion & Lifestyle</option><option>Finance & Fintech</option><option>Education</option><option>E-commerce</option><option>Real Estate</option><option>SaaS</option><option>Media & Entertainment</option></select></div>
+      <div class="input-group"><label class="input-label">Business Stage</label><select class="input-field" id="ba-stage"><option>Idea / Pre-launch</option><option>Startup</option><option>Growth</option><option>Scale-up</option><option>Enterprise</option><option>Rebranding</option></select></div>
+      <div class="input-group"><label class="input-label">Analysis Type</label>
+        <select class="input-field" id="ba-type" onchange="toggleCustomQuestion(this)">
+          <option value="full_audit">Full Brand Audit (All Sections)</option>
+          <option value="positioning">Brand Positioning Strategy</option>
+          <option value="competitor">Competitor Analysis</option>
+          <option value="voice">Brand Voice & Tone Guide</option>
+          <option value="naming">Brand Name Evaluation</option>
+          <option value="visual_identity">Visual Identity Brief</option>
+          <option value="custom">Custom Question</option>
+        </select>
+      </div>
+      <div class="input-group" id="custom-q-group" style="display:none;">
+        <label class="input-label">Your Question</label>
+        <textarea class="input-field" id="ba-custom" placeholder="Ask anything about your brand strategy…" style="min-height:80px;"></textarea>
+      </div>
+      <button class="generate-btn" onclick="generateBrandingAssistant()" id="btn-branding">🧠 Analyze Brand</button>
+    </div>
+    <div class="output-panel">
+      <div class="output-topbar"><span class="output-topbar-title">// Branding Assistant Output</span><div class="terminal-dots"><div class="terminal-dot dot-r"></div><div class="terminal-dot dot-y"></div><div class="terminal-dot dot-g"></div></div></div>
+      <div class="output-body">
+        <div class="output-placeholder" id="ph-branding"><div class="output-placeholder-icon">🧠</div><div class="output-placeholder-text">Enter your brand details<br>and select an analysis type.</div></div>
+        <div class="loading-state" id="load-branding"><div style="font-size:0.65rem;color:var(--muted);">Analyzing your brand via Groq LLaMA…</div><div class="loading-progress"><div class="loading-progress-fill" id="fill-branding"></div></div></div>
+        <div class="ai-result" id="res-branding"><div class="result-text" id="text-branding"></div><div class="result-actions"><button class="copy-btn" onclick="copyText('text-branding')">Copy</button><button class="regen-btn" onclick="generateBrandingAssistant()">↺ Regenerate</button></div></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<script>
+const API_BASE = window.location.origin;
+
+function goHome() { switchPage('home'); }
+function showModule(mod) { switchPage(mod); }
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  const n = document.getElementById('nav-' + id);
+  if (n) n.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+const pSteps = document.querySelectorAll('#pipelineSteps .p-step');
+let pCur = 0;
+setInterval(() => { pSteps[pCur].classList.remove('active'); pCur = (pCur+1)%pSteps.length; pSteps[pCur].classList.add('active'); }, 1800);
+
+function selectContentType(el, val) { document.querySelectorAll('.content-type-btn').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); document.getElementById('ct-type-val').value = val; }
+function selectPlatform(el, val) { document.querySelectorAll('.platform-btn').forEach(b=>b.classList.remove('selected')); el.classList.add('selected'); document.getElementById('banner-platform-val').value = val; }
+function toggleCustomQuestion(sel) { document.getElementById('custom-q-group').style.display = sel.value==='custom'?'block':'none'; }
+
+async function apiPost(endpoint, body) {
+  const res = await fetch(`${API_BASE}${endpoint}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  if (!res.ok) { const err = await res.json().catch(()=>({detail:res.statusText})); throw new Error(err.detail||'Request failed'); }
+  return res.json();
+}
+
+function startLoad(id) {
+  document.getElementById('ph-'+id).style.display='none';
+  document.getElementById('res-'+id).classList.remove('visible');
+  document.getElementById('load-'+id).classList.add('visible');
+  const fill = document.getElementById('fill-'+id);
+  if (fill) { fill.style.width='0'; setTimeout(()=>fill.style.width='88%',60); }
+  const err = document.getElementById('err-'+id);
+  if (err) err.classList.remove('visible');
+}
+function stopLoad(id, text) {
+  document.getElementById('load-'+id).classList.remove('visible');
+  const el = document.getElementById('text-'+id);
+  if (el) el.textContent = text;
+  document.getElementById('res-'+id).classList.add('visible');
+}
+function showErr(id, msg) {
+  document.getElementById('load-'+id).classList.remove('visible');
+  document.getElementById('ph-'+id).style.display='flex';
+  const err = document.getElementById('err-'+id);
+  if (err) { err.textContent='⚠ '+msg; err.classList.add('visible'); }
+}
+function setBtn(id, dis) { document.getElementById('btn-'+id).disabled = dis; }
+
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600); }
+function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copied to clipboard ✓')); }
+
+async function downloadImageBlob(imgId, filename) {
+  const img = document.getElementById(imgId);
+  if (!img||!img.src||img.src===window.location.href) { showToast('No image to download'); return; }
+  try {
+    showToast('Preparing download…');
+    const response = await fetch(img.src);
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('Downloaded ✓');
+  } catch(e) { showToast('Right-click → Save image as fallback'); }
+}
+
+let currentSvgUrl = '';
+async function downloadSVG() {
+  if (!currentSvgUrl) { showToast('No SVG to download'); return; }
+  try {
+    const res = await fetch(currentSvgUrl);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='brandforge-logo.svg';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('SVG downloaded ✓');
+  } catch(e) { showToast('Download failed'); }
+}
+
+// Module 1
+async function generateBrand() {
+  const kw = document.getElementById('brand-keywords').value.trim();
+  if (!kw) { showToast('Please enter keywords first'); return; }
+  setBtn('brand',true); startLoad('brand');
+  try { const data = await apiPost('/api/generate-brand',{keywords:kw,industry:document.getElementById('brand-industry').value,tone:document.getElementById('brand-tone').value}); stopLoad('brand',data.data); }
+  catch(e) { showErr('brand',e.message); }
+  setBtn('brand',false);
+}
+
+// Module 2
+async function generateLogo() {
+  const name = document.getElementById('logo-name').value.trim();
+  if (!name) { showToast('Please enter a brand name'); return; }
+  setBtn('logo',true); startLoad('logo');
+  document.getElementById('logo-canvas').style.display='none';
+  document.getElementById('logo-actions').style.display='none';
+  document.getElementById('btn-dl-svg').style.display='none';
+  try {
+    const data = await apiPost('/api/generate-logo',{brand_name:name,industry:document.getElementById('logo-industry').value,keywords:document.getElementById('logo-keywords').value});
+    const r = data.data;
+    document.getElementById('text-logo').textContent='🖼 Logo Concept:\n'+r.logo_prompt;
+    document.getElementById('res-logo').classList.add('visible');
+    document.getElementById('load-logo').classList.remove('visible');
+    if (r.image_url) { document.getElementById('logo-img').src=API_BASE+r.image_url; document.getElementById('logo-canvas').style.display='flex'; }
+    if (r.svg_url) { currentSvgUrl=API_BASE+r.svg_url; document.getElementById('btn-dl-svg').style.display='inline-flex'; }
+    document.getElementById('logo-actions').style.display='flex';
+  } catch(e) { showErr('logo',e.message); }
+  setBtn('logo',false);
+}
+
+// Module 3
+async function generateBanner() {
+  const brand = document.getElementById('banner-brand').value.trim();
+  if (!brand) { showToast('Please enter a brand name'); return; }
+  setBtn('banner',true); startLoad('banner');
+  document.getElementById('banner-canvas').style.display='none';
+  document.getElementById('banner-actions').style.display='none';
+  document.getElementById('banner-info').style.display='none';
+  try {
+    const data = await apiPost('/api/generate/banner',{platform:document.getElementById('banner-platform-val').value,brand_name:brand,tagline:document.getElementById('banner-tagline').value,style:document.getElementById('banner-style').value,output_format:document.getElementById('banner-format').value});
+    const r = data.data;
+    document.getElementById('banner-info-platform').textContent=r.platform.charAt(0).toUpperCase()+r.platform.slice(1);
+    document.getElementById('banner-info-dim').textContent=r.dimensions+' px';
+    document.getElementById('banner-info').style.display='block';
+    document.getElementById('text-banner').textContent='💡 Prompt:\n'+r.prompt_used;
+    document.getElementById('res-banner').classList.add('visible');
+    document.getElementById('load-banner').classList.remove('visible');
+    if (r.image_url) { document.getElementById('banner-img').src=API_BASE+r.image_url; document.getElementById('banner-canvas').style.display='flex'; }
+    else { showToast('⚠ Image not generated — check API keys'); }
+    document.getElementById('banner-actions').style.display='flex';
+  } catch(e) { showErr('banner',e.message); }
+  setBtn('banner',false);
+}
+
+// Module 4
+async function generateContent() {
+  const desc = document.getElementById('content-desc').value.trim();
+  if (!desc) { showToast('Please describe your brand'); return; }
+  setBtn('content',true); startLoad('content');
+  try { const data = await apiPost('/api/generate-content',{brand_description:desc,tone:document.getElementById('content-tone').value,content_type:document.getElementById('ct-type-val').value}); stopLoad('content',data.data); }
+  catch(e) { showErr('content',e.message); }
+  setBtn('content',false);
+}
+
+// Module 5
+async function generateDesign() {
+  setBtn('design',true); startLoad('design');
+  try { const data = await apiPost('/api/get-colors',{tone:document.getElementById('design-tone').value,industry:document.getElementById('design-industry').value}); stopLoad('design',data.data); }
+  catch(e) { showErr('design',e.message); }
+  setBtn('design',false);
+}
+
+// Module 6
+async function analyzeSentiment() {
+  const text = document.getElementById('sentiment-text').value.trim();
+  if (!text) { showToast('Please paste a customer review'); return; }
+  setBtn('sentiment',true); startLoad('sentiment');
+  try { const data = await apiPost('/api/analyze-sentiment',{text,brand_tone:document.getElementById('sentiment-tone').value}); stopLoad('sentiment',data.data.analysis); }
+  catch(e) { showErr('sentiment',e.message); }
+  setBtn('sentiment',false);
+}
+
+// Module 7
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value='';
+  const msgs = document.getElementById('chat-messages');
+  const userDiv = document.createElement('div'); userDiv.className='chat-msg user'; userDiv.textContent=msg; msgs.appendChild(userDiv);
+  const thinking = document.createElement('div'); thinking.className='chat-msg bot'; thinking.textContent='⏳ Thinking…'; msgs.appendChild(thinking);
+  msgs.scrollTop=msgs.scrollHeight;
+  try { const data = await apiPost('/api/chat',{message:msg}); thinking.textContent=data.data.content; }
+  catch(e) { thinking.textContent='⚠ '+e.message; }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+// Module 8
+async function generateAdCreative() {
+  const brand = document.getElementById('ad-brand').value.trim();
+  const product = document.getElementById('ad-product').value.trim();
+  if (!brand||!product) { showToast('Please fill in Brand Name and Product'); return; }
+  setBtn('adcreative',true); startLoad('adcreative');
+  document.getElementById('ad-images-section').style.display='none';
+  document.getElementById('ad-images-grid').innerHTML='';
+  try {
+    const data = await apiPost('/api/generate-ad-creative',{brand_name:brand,product,target_audience:document.getElementById('ad-audience').value,platform:document.getElementById('ad-platform').value,goal:document.getElementById('ad-goal').value,tone:document.getElementById('ad-tone').value});
+    stopLoad('adcreative',data.data.ad_creative);
+    const images=data.data.ad_images||[];
+    const labels=['Product Showcase','Lifestyle Shot','Bold Visual'];
+    const grid=document.getElementById('ad-images-grid');
+    let hasImages=false;
+    images.forEach((url,i)=>{
+      if(url){ hasImages=true;
+        const div=document.createElement('div');
+        div.style.cssText='border:1px solid var(--border);border-radius:2px;overflow:hidden;';
+        div.innerHTML=`<img src="${API_BASE+url}" alt="Ad Visual ${i+1}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;"><div style="padding:0.4rem 0.5rem;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);background:var(--cream);">${labels[i]||'Visual '+(i+1)}</div>`;
+        grid.appendChild(div);
+      }
+    });
+    if(hasImages) document.getElementById('ad-images-section').style.display='block';
+  } catch(e) { showErr('adcreative',e.message); }
+  setBtn('adcreative',false);
+}
+
+// Module 9
+async function generateBrandingAssistant() {
+  const brand = document.getElementById('ba-brand').value.trim();
+  if (!brand) { showToast('Please enter your brand name'); return; }
+  setBtn('branding',true); startLoad('branding');
+  try { const data = await apiPost('/api/branding-assistant',{brand_name:brand,industry:document.getElementById('ba-industry').value,stage:document.getElementById('ba-stage').value,request_type:document.getElementById('ba-type').value,custom_question:document.getElementById('ba-custom').value}); stopLoad('branding',data.data); }
+  catch(e) { showErr('branding',e.message); }
+  setBtn('branding',false);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1882a9"/>
+      <stop offset="100%" stop-color="#4167d6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="#ffffff"/>
+  <rect x="0" y="0" width="1024" height="8" fill="url(#accent)"/>
+  <circle cx="512" cy="420" r="180" fill="#def0f6"/>
+  <text x="512" y="420" font-family="Arial, Helvetica, sans-serif" font-size="120" font-weight="900"
+        fill="#1882a9" text-anchor="middle" dominant-baseline="middle">P</text>
+  <text x="512" y="640" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="700"
+        fill="#093f52" text-anchor="middle" dominant-baseline="middle"
+        letter-spacing="6">PUMA</text>
+  <rect x="412" y="680" width="200" height="3" fill="url(#accent)" rx="2"/>
+</svg>

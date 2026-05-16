@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050810"/>
+      <stop offset="100%" stop-color="#0d1525"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3aa918"/>
+      <stop offset="100%" stop-color="#b73bdc"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="6" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="glow2"><feGaussianBlur stdDeviation="12" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <circle cx="512" cy="460" r="260" fill="none" stroke="#3aa918" stroke-width="1.5" opacity="0.3" filter="url(#glow)"/>
+  <circle cx="512" cy="460" r="290" fill="none" stroke="#b73bdc" stroke-width="0.5" opacity="0.15"/>
+  <polygon points="512,180 772,340 772,580 512,740 252,580 252,340" fill="none" stroke="url(#neon)" stroke-width="1" opacity="0.2"/>
+  <text x="512" y="480" font-family="'Courier New', monospace" font-size="88" font-weight="bold"
+        fill="url(#neon)" text-anchor="middle" dominant-baseline="middle"
+        filter="url(#glow2)" letter-spacing="6">TAAZA</text>
+  <line x1="112" y1="540" x2="412" y2="540" stroke="#3aa918" stroke-width="1" opacity="0.4"/>
+  <line x1="612" y1="540" x2="912" y2="540" stroke="#b73bdc" stroke-width="1" opacity="0.4"/>
+  <text x="512" y="575" font-family="'Courier New', monospace" font-size="18" fill="#3aa918"
+        text-anchor="middle" letter-spacing="8" opacity="0.7">// DIGITAL SOLUTIONS</text>
+</svg>
